@@ -1,0 +1,15 @@
+const express = require('express');
+const router  = express.Router();
+const ctrl    = require('../controllers/orderController');
+const { protect, authorize } = require('../middleware/auth');
+
+router.post('/',           protect,                  ctrl.createOrder);
+router.get( '/my',         protect,                  ctrl.getMyOrders);
+router.get( '/:id',        protect,                  ctrl.getOrder);
+router.put( '/:id/cancel', protect,                  ctrl.cancelOrder);
+
+// Admin
+router.get('/',            protect, authorize('admin'), ctrl.getAllOrders);
+router.put('/:id/status',  protect, authorize('admin'), ctrl.updateOrderStatus);
+
+module.exports = router;
