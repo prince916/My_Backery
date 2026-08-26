@@ -1,1 +1,5 @@
-console.log("Test file created and working!");
+describe('server test setup', () => {
+	test('Jest is configured correctly', () => {
+		expect(true).toBe(true);
+	});
+});

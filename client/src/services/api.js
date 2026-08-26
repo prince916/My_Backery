@@ -28,7 +28,17 @@ API.interceptors.response.use(
         window.location.href = '/login';
       }
     }
-    return Promise.reject(error?.response?.data || error);
+
+    // Keep the backend message available through the normal Error API.
+    const responseData = error.response?.data;
+    if (responseData?.message) {
+      const normalizedError = new Error(responseData.message);
+      normalizedError.status = error.response.status;
+      normalizedError.data = responseData;
+      return Promise.reject(normalizedError);
+    }
+
+    return Promise.reject(error);
   }
 );
 

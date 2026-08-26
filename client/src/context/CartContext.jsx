@@ -14,10 +14,13 @@ export const useCart = () => {
 export const CartProvider = ({ children }) => {
   const { isAuthenticated } = useAuth();
   const [cart,    setCart]    = useState({ items: [], subtotal: 0, totalItems: 0 });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const fetchCart = useCallback(async () => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated) {
+      setLoading(false);
+      return;
+    }
     try {
       setLoading(true);
       const { data } = await cartService.getCart();

@@ -7,7 +7,14 @@ const { uploadToCloudinary, deleteFromCloudinary } = require('../config/cloudina
 
 // ── Register ───────────────────────────────────────────────
 exports.register = catchAsync(async (req, res, next) => {
-  const { name, email, password, phone } = req.body;
+  const name = req.body.name?.trim();
+  const email = req.body.email?.trim().toLowerCase();
+  const password = req.body.password;
+  const phone = req.body.phone?.trim();
+
+  if (!name || !email || !password) {
+    return next(new AppError('Name, email, and password are required', 400));
+  }
 
   const existingUser = await User.findOne({ email });
   if (existingUser) {

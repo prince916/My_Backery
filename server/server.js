@@ -29,9 +29,6 @@ const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 
-// Connect to MongoDB
-connectDB();
-
 // ── Security Middleware ────────────────────────────────────
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(mongoSanitize());   // Prevent NoSQL injection
@@ -99,18 +96,25 @@ app.use('*', (req, res) => {
 // ── Global Error Handler ──────────────────────────────────
 app.use(errorHandler);
 
-// ── Start Server ──────────────────────────────────────────
+// ── Start Server after database connection ────────────────
 const PORT = process.env.PORT || 5000;
-const server = app.listen(PORT, () => {
-  console.log(`\n🍰 My Bakery Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
-  console.log(`📡 API: http://localhost:${PORT}/api`);
-});
 
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (err) => {
-  console.error(`Unhandled Rejection: ${err.message}`);
-  server.close(() => process.exit(1));
-});
+connectDB()
+  .then(() => {
+    const server = app.listen(PORT, () => {
+      console.log(`\n🍰 My Bakery Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
+      console.log(`📡 API: http://localhost:${PORT}/api`);
+    });
+
+    process.on('unhandledRejection', (err) => {
+      console.error(`Unhandled Rejection: ${err.message}`);
+      server.close(() => process.exit(1));
+    });
+  })
+  .catch((err) => {
+    console.error(`❌ ${err.message}`);
+    process.exit(1);
+  });
 
 process.on('uncaughtException', (err) => {
   console.error(`Uncaught Exception: ${err.message}`);

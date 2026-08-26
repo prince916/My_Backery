@@ -7,13 +7,14 @@ import { couponService } from '../services/index';
 import { formatCurrency } from '../utils/helpers';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
+import Loader from '../components/common/Loader';
 
 const TAX_RATE = 0.05;
 const FREE_SHIPPING_MIN = 500;
 const SHIPPING_COST = 50;
 
 export default function CartPage() {
-  const { cart, cartCount, subtotal, updateItem, removeItem, clearCart } = useCart();
+  const { cart, cartCount, subtotal, loading, updateItem, removeItem, clearCart } = useCart();
   const navigate = useNavigate();
   const [couponCode, setCouponCode]     = useState('');
   const [couponData, setCouponData]     = useState(null);
@@ -42,6 +43,12 @@ export default function CartPage() {
   const handleCheckout = () => {
     navigate('/checkout', { state: { coupon: couponData } });
   };
+
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center bg-secondary-50 dark:bg-dark">
+      <Loader text="Loading your cart..." />
+    </div>
+  );
 
   if (!cart?.items?.length) return (
     <div className="min-h-screen flex items-center justify-center bg-secondary-50 dark:bg-dark px-4">
