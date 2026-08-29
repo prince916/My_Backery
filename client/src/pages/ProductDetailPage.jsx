@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiShoppingCart, FiHeart, FiShare2, FiChevronLeft, FiMinus, FiPlus, FiCheck } from 'react-icons/fi';
 import { Helmet } from 'react-helmet-async';
@@ -17,6 +17,8 @@ export default function ProductDetailPage() {
   const { idOrSlug } = useParams();
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const [product,   setProduct]   = useState(null);
   const [reviews,   setReviews]   = useState([]);
@@ -45,7 +47,11 @@ export default function ProductDetailPage() {
   }, [idOrSlug]);
 
   const handleAddToCart = async () => {
-    if (!isAuthenticated) { toast.error('Please login first'); return; }
+    if (!isAuthenticated) {
+      toast.error('Please login to add items to cart');
+      navigate('/login', { state: { from: location } });
+      return;
+    }
     setAdding(true);
     await addToCart({ productId: product._id, quantity, flavor, size, name: product.name });
     setAdding(false);
@@ -64,12 +70,23 @@ export default function ProductDetailPage() {
 
   const effectivePrice = product.discountPrice > 0 ? product.discountPrice : product.price;
   const selectedSizePrice = size ? (product.sizes?.find((s) => s.name === size)?.price || 0) : 0;
+  const fallbackImage = product.category?.name === 'Breads'
+    ? 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&q=80'
+    : product.category?.name === 'Cookies'
+      ? 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=800&q=80'
+      : 'https://images.unsplash.com/photo-1486427944299-d1955d23e34d?w=800&q=80';
+  const pageTitle = `${product.name || 'Product Details'} — My Bakery`;
+  const pageDescription = typeof product.shortDesc === 'string' && product.shortDesc.trim()
+    ? product.shortDesc
+    : typeof product.description === 'string' && product.description.trim()
+      ? product.description.slice(0, 160)
+      : 'Explore handcrafted pastries, breads, and desserts from My Bakery.';
 
   return (
     <div className="min-h-screen bg-secondary-50 dark:bg-dark py-8">
       <Helmet>
-        <title>{product.name} — My Bakery</title>
-        <meta name="description" content={product.shortDesc || product.description?.slice(0, 160)} />
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
       </Helmet>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -94,7 +111,15 @@ export default function ProductDetailPage() {
               className="aspect-square rounded-3xl overflow-hidden bg-secondary-100 dark:bg-dark-card"
             >
               {product.images?.[activeImg]?.url ? (
-                <img src={product.images[activeImg].url} alt={product.name} className="w-full h-full object-cover" />
+                <img
+                  src={product.images[activeImg].url}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                  onError={(event) => {
+                    event.currentTarget.onerror = null;
+                    event.currentTarget.src = fallbackImage;
+                  }}
+                />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-8xl">🎂</div>
               )}
@@ -109,7 +134,15 @@ export default function ProductDetailPage() {
                     onClick={() => setActiveImg(i)}
                     className={`flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-colors ${activeImg === i ? 'border-primary' : 'border-transparent'}`}
                   >
-                    <img src={img.url} alt="" className="w-full h-full object-cover" />
+                    <img
+                      src={img.url}
+                      alt=""
+                      className="w-full h-full object-cover"
+                      onError={(event) => {
+                        event.currentTarget.onerror = null;
+                        event.currentTarget.src = fallbackImage;
+                      }}
+                    />
                   </button>
                 ))}
               </div>

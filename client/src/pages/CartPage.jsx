@@ -24,6 +24,7 @@ export default function CartPage() {
   const shippingAmount  = subtotal >= FREE_SHIPPING_MIN ? 0 : SHIPPING_COST;
   const discountAmount  = couponData?.discountAmount || 0;
   const total           = subtotal + taxAmount + shippingAmount - discountAmount;
+  const pageTitle       = `Cart (${cartCount ?? 0}) — My Bakery`;
 
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) return;
@@ -63,7 +64,7 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-secondary-50 dark:bg-dark py-8">
-      <Helmet><title>Cart ({cartCount}) — My Bakery</title></Helmet>
+      <Helmet><title>{pageTitle}</title></Helmet>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-8">

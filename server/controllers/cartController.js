@@ -76,6 +76,7 @@ exports.removeFromCart = catchAsync(async (req, res, next) => {
 
   item.deleteOne();
   await cart.save();
+  await cart.populate('items.product', 'name images isAvailable stock');
   res.json({ success: true, message: 'Item removed from cart', cart });
 });
 

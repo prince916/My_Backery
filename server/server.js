@@ -48,6 +48,7 @@ app.use('/api/', limiter);
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 20,
+  skip: () => process.env.NODE_ENV === 'development',
   message: { success: false, message: 'Too many login attempts, please try again later.' },
 });
 app.use('/api/auth/', authLimiter);

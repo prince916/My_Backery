@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiHeart, FiShoppingCart, FiEye, FiStar } from 'react-icons/fi';
 import { useCart } from '../../context/CartContext';
@@ -11,16 +11,27 @@ import toast from 'react-hot-toast';
 export default function ProductCard({ product }) {
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [wished, setWished] = useState(false);
   const [adding, setAdding] = useState(false);
 
   const effectivePrice = product.discountPrice > 0 ? product.discountPrice : product.price;
   const hasDiscount    = product.discountPrice > 0 && product.discountPrice < product.price;
   const mainImage      = product.images?.[0]?.url;
+  const fallbackImage  = product.category?.name === 'Breads'
+    ? 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&q=80'
+    : product.category?.name === 'Cookies'
+      ? 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=800&q=80'
+      : 'https://images.unsplash.com/photo-1486427944299-d1955d23e34d?w=800&q=80';
 
   const handleAddToCart = async (e) => {
     e.preventDefault();
-    if (!isAuthenticated) { toast.error('Please login to add items to cart'); return; }
+    if (!isAuthenticated) {
+      toast.error('Please login to add items to cart');
+      navigate('/login', { state: { from: location } });
+      return;
+    }
     setAdding(true);
     await addToCart({ productId: product._id, quantity: 1, name: product.name });
     setAdding(false);
@@ -49,6 +60,10 @@ export default function ProductCard({ product }) {
             src={mainImage}
             alt={product.name}
             loading="lazy"
+            onError={(event) => {
+              event.currentTarget.onerror = null;
+              event.currentTarget.src = fallbackImage;
+            }}
             className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500"
             style={{ '--tw-scale-x': '1.08', '--tw-scale-y': '1.08' }}
           />

@@ -29,6 +29,15 @@ API.interceptors.response.use(
       }
     }
 
+    if (error.response?.status === 429) {
+      const retryAfter = error.response.headers?.['retry-after'];
+      const waitMessage = retryAfter ? ` Try again in ${retryAfter} seconds.` : '';
+      const rateLimitError = new Error(`Too many requests.${waitMessage}`);
+      rateLimitError.status = 429;
+      rateLimitError.data = error.response.data;
+      return Promise.reject(rateLimitError);
+    }
+
     // Keep the backend message available through the normal Error API.
     const responseData = error.response?.data;
     if (responseData?.message) {

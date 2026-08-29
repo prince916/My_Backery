@@ -45,10 +45,11 @@ export default function OrderTrackingPage() {
 
   const currentStepIndex = getStepIndex(order.status);
   const isCancelled = order.status === 'cancelled';
+  const pageTitle = `Order ${order.orderNumber || 'Details'} — My Bakery`;
 
   return (
     <div className="min-h-screen bg-secondary-50 dark:bg-dark py-8">
-      <Helmet><title>Order {order.orderNumber} — My Bakery</title></Helmet>
+      <Helmet><title>{pageTitle}</title></Helmet>
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6">
         {/* Header */}
