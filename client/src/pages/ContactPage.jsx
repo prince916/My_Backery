@@ -95,13 +95,16 @@ export default function ContactPage() {
               </motion.div>
             ))}
 
-            {/* Google Maps placeholder */}
-            <div className="card overflow-hidden h-48 flex items-center justify-center bg-gray-100 dark:bg-dark-border">
-              <div className="text-center text-gray-400">
-                <FiMapPin className="w-8 h-8 mx-auto mb-2" />
-                <p className="text-sm">Google Maps</p>
-                <p className="text-xs">123, Baker Street, Mumbai</p>
-              </div>
+            {/* Google Maps */}
+            <div className="card overflow-hidden h-60 bg-gray-100 dark:bg-dark-border">
+              <iframe
+                title="My Bakery location"
+                src="https://www.google.com/maps?q=Baker%20Street%20Mumbai&z=14&output=embed"
+                className="w-full h-full border-0"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                allowFullScreen
+              />
             </div>
           </div>
 
